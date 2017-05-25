@@ -1,0 +1,15 @@
+<h1>Block Breaker</h1>
+
+<section test-hook="block-breaker">
+    <span class="score">
+        {{gameInstance.score}}
+    </span>
+    <button (click)="gameInstance.active ? gameOver() : startGame()">
+        <i class="fa-play" [attr.class]="gameInstance.active ? 'fa fa-stop' : 'fa fa-play'"></i>
+    </button>
+    <!--<div #blockBreakerCanvas id="block-breaker-canvas">-->
+        <!--<div id="block-breaker-ball" [@followMouseMove]="shouldBallFollowMouse()"></div>-->
+        <!--<div id="block-breaker-paddle" [@followMouseMove]="shouldPaddleFollowMouse()"></div>-->
+    <!--</div>-->
+    <canvas #blockBreakerCanvas id="block-breaker-canvas"></canvas>
+</section>

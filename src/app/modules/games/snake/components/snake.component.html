@@ -1,0 +1,17 @@
+<h1>SNEK</h1>
+
+<section test-hook="snake">
+    <span class="score">
+        {{gameInstance.score}}
+    </span>
+    <button (click)="gameInstance.active ? gameOver() : startGame()">
+        <i class="fa-play" [attr.class]="gameInstance.active ? 'fa fa-stop' : 'fa fa-play'"></i>
+    </button>
+    <div class="row" *ngFor="let int of boardRange(); let y=index">
+        <div class="column"
+             *ngFor="let int of boardRange(); let x=index; trackBy:x">
+            <food *ngIf="foodCell(x, y)"></food>
+            <snake-creature *ngIf="snakeCells(x, y)"></snake-creature>
+        </div>
+    </div>
+</section>
