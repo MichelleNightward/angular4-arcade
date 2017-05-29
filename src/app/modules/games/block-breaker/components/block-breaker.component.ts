@@ -29,7 +29,7 @@ export class BlockBreakerComponent extends AbstractGameComponent implements OnIn
         // }).on('mouseleave', () => {
         //     this.mouseStatus = false;
         // });
-        this.gameService.setCanvasInfo(this.canvas);
+        this.gameService.setCanvasInfoAndDraw(this.canvas);
         // this.canvas.nativeElement.addEventListener('mousemove', (e: any) => {
         //     this.gameService.setMousePosition(e);
         //     this.gameService.drawPaddle();

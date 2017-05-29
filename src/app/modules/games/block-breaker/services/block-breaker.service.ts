@@ -2,6 +2,7 @@ import {BlockBreakerGame} from "../models/block-breaker-game";
 import {AbstractGameService} from "../../../../abstracted-resources/service-and-utils/abstract-game.service";
 import {Injectable, ElementRef} from "@angular/core";
 import {GameComponent} from "../models/game-component";
+import {TwoDLocation} from "../../../../shared/models/two-d-location";
 /**
  * Created by michellenightward on 4/26/17.
  */
@@ -100,11 +101,12 @@ export class BlockBreakerService extends AbstractGameService {
     public canvas: ElementRef;
     public canvasPosition: any = {};
     private context: CanvasRenderingContext2D;
-    public mouseX: number = 100;
-    public mouseY: number = 100;
+    public mouseLocation: TwoDLocation = new TwoDLocation(100, 100);
     public renderables: any[] = [];
-    public paddle: GameComponent = new GameComponent(this.canvas);
-    public ball: GameComponent = new GameComponent(this.canvas);
+    public paddle: GameComponent = new GameComponent(this.canvas, 50, 10, "#FF6A6A", null, this.mouseLocation, "rect");
+    public ball: GameComponent = new GameComponent(this.canvas, 50, 10, "#FF6A6A", null, new TwoDLocation(this.mouseLocation.x, 90),
+                                                    "arc");
+    public brickArray: GameComponent[];
 
     constructor() {
         super(new BlockBreakerGame());
@@ -115,10 +117,18 @@ export class BlockBreakerService extends AbstractGameService {
 
     public startGame() {
         this.gameInstance.active = true;
+        this.setCanvasInfoAndDraw(this.canvas);
+        // this.drawPaddle();
+        // this.drawBall();
         this.canvas.nativeElement.addEventListener('mousemove', (e: any) => {
             this.setMousePosition(e);
-            this.drawPaddle();
-            this.drawBall();
+            //this.update(e);
+            // this.updatePaddle(e);
+            // this.updateBall(e);
+            // this.paddle.renderRect(this.mouseLocation);
+            // this.ball.renderArc(this.mouseLocation);
+            this.paddle.followMouseMovement(e);
+            this.ball.followMouseMovement(e);
         });
         this.canvas.nativeElement.addEventListener('mousedown', (e: any) => {
 
@@ -132,47 +142,63 @@ export class BlockBreakerService extends AbstractGameService {
         //     this.setMousePosition(e);
         //     this.drawPaddle();
         // });
-        this.drawPaddle();
-        this.drawBall();
+        // this.drawPaddle();
+        // this.drawBall();
+        this.setCanvasInfoAndDraw(this.canvas);
     }
 
     public update(e: any) {
+        // this.paddle.renderRect(this.mouseLocation);
+        // this.ball.renderArc(this.mouseLocation);
+        // this.drawPaddle();
+        // this.drawBall();
     }
 
-    public setCanvasInfo(canvas: ElementRef){
+    public setCanvasInfoAndDraw(canvas: ElementRef){
         this.canvas = canvas;
-        //this.context = this.canvas.nativeElement.getContext("2d");
+        this.context = this.canvas.nativeElement.getContext("2d");
         this.paddle.context = this.canvas.nativeElement.getContext("2d");
         this.ball.context = this.canvas.nativeElement.getContext("2d");
-        this.drawPaddle();
-        this.drawBall();
+        this.context.clearRect(0, 0, this.canvas.nativeElement.width, this.canvas.nativeElement.height);
+        this.paddle.renderRect(this.mouseLocation);
+        this.ball.renderArc(this.mouseLocation);
+        // this.drawPaddle();
+        // this.drawBall();
         //this.canvasPosition = getPosition(canvas);
     }
 
     public setMousePosition(e: any): void {
-        // this.getPosition(this.canvas);
-        this.mouseX = e.clientX - this.canvas.nativeElement.offsetLeft; // - this.canvasPosition.x;
-        this.mouseY = e.clientY - this.canvas.nativeElement.offsetTop; // - this.canvasPosition.Y;
+        this.mouseLocation = new TwoDLocation(e.clientX - this.canvas.nativeElement.offsetLeft, e.clientY - this.canvas.nativeElement.offsetTop);
     }
+    //
+    // public drawPaddle(): void {
+    //     // this.context.clearRect(this.mouseX, 100, 50, 10);
+    //     this.paddle.context.beginPath();
+    //     this.paddle.context.fillRect(this.mouseX, 100, 50, 10);
+    //     //this.context.arc(this.mouseX, 100, 50, 0, 2 * Math.PI, true);
+    //     this.paddle.context.fillStyle = "#FF6A6A";
+    //     this.paddle.context.fill();
+    //     //requestAnimationFrame();
+    // }
 
-    public drawPaddle(): void {
-        this.paddle.context.clearRect(0, 0, this.canvas.nativeElement.width, this.canvas.nativeElement.height);
-        this.paddle.context.beginPath();
-        this.paddle.context.fillRect(this.mouseX, 100, 50, 10);
-        //this.context.arc(this.mouseX, 100, 50, 0, 2 * Math.PI, true);
-        this.paddle.context.fillStyle = "#FF6A6A";
-        this.paddle.context.fill();
-        //requestAnimationFrame();
-    }
+    // public updatePaddle(e: any): void {
+    //     this.paddle.followMouseMovement(e);
+    //     this.paddle.renderRect();
+    // }
 
-    public drawBall(): void {
-        this.ball.context.clearRect(0, 0, this.canvas.nativeElement.width, this.canvas.nativeElement.height);
-        //this.context.beginPath();
-        //this.context.fillRect(this.mouseX, 100, 50, 10);
-        this.ball.context.arc(this.mouseX, 90, 5, 0, 2 * Math.PI, true);
-        this.ball.context.fillStyle = "#FF6A6A";
-        this.ball.context.fill();
-    }
+    // public drawBall(): void {
+    //     // this.context.clearRect(0, 0, this.canvas.nativeElement.width, this.canvas.nativeElement.height);
+    //     this.ball.context.beginPath();
+    //     //this.context.fillRect(this.mouseX, 100, 50, 10);
+    //     this.ball.context.arc(this.mouseX, 90, 5, 0, 2 * Math.PI, true);
+    //     this.ball.context.fillStyle = "#FF6A6A";
+    //     this.ball.context.fill();
+    // }
+
+    // public updateBall(e: any): void {
+    //     this.ball.followMouseMovement(e);
+    //     this.ball.renderArc();
+    // }
 
     // TODO: get support in place for rendering multiple objects
     // public paddle(): void {
