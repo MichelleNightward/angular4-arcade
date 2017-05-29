@@ -14,6 +14,7 @@ import {NavMenuModule} from "./modules/nav-menu/nav-menu.module";
 import {LeaderBoardModule} from "./modules/leader-board/leader-board.module";
 import {SnakeModule} from "./modules/games/snake/snake.module";
 import {BlockBreakerModule} from "./modules/games/block-breaker/block-breaker.module";
+import { Angular2FontawesomeModule } from 'angular2-fontawesome/angular2-fontawesome'
 //import {AbstractResourcesModule} from "./abstracted-resources/abstracted-resources.module";
 
 @NgModule({
@@ -28,7 +29,8 @@ import {BlockBreakerModule} from "./modules/games/block-breaker/block-breaker.mo
         NavMenuModule,
         LeaderBoardModule,
         SnakeModule,
-        BlockBreakerModule
+        BlockBreakerModule,
+        Angular2FontawesomeModule
     ],
     declarations: [
         AppComponent,

@@ -36,7 +36,7 @@ export class SnakeComponent extends AbstractGameComponent {
         return this.gameService.isSnakeCell(col, row);
     }
 
-    public boardRange = () => {
+    public boardRange() {
         let range = [];
         for(let i = 0; i < this.gameInstance.boardSize; ++i) {
             range.push(i+1)

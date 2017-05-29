@@ -1,0 +1,25 @@
+.is-updating, .is-updating .modal-content {
+    .wait-cursor;
+
+    textarea, input, label, select, h1, h2, h3, h4, h5, h6, .conversation-item {
+        .wait-cursor;
+    }
+
+}
+
+.is-updating a:hover, .is-updating button {
+    .not-allowed-cursor;
+}
+
+.wait-cursor {
+    cursor: wait !important;
+}
+
+.not-allowed-cursor {
+    cursor: not-allowed !important;
+}
+
+.btn:disabled, button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
