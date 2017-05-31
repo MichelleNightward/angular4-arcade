@@ -10,6 +10,7 @@ export class GameComponent extends AbstractGameInstance {
     public context: any;
     public width: number;
     public height: number;
+    public border: string;
     public color: string;
     public sprite: string;
     public location: TwoDLocation;
@@ -19,13 +20,14 @@ export class GameComponent extends AbstractGameInstance {
     public gravitySpeed: number;
     public hitPoints: number;
 
-    constructor(context?: any, width?: number, height?: number, color?: string, sprite?: string,
+    constructor(context?: any, width?: number, height?: number, border?: string, color?: string, sprite?: string,
                 location?: TwoDLocation, type?: string, speed?: TwoDLocation, gravity?: number, gravitySpeed?: number,
                 hitPoints?: number, id?: number) {
         super(id);
         this.context = context;
         this.width = width;
         this.height = height;
+        this.border = border;
         this.color = color;
         this.sprite = sprite;
         this.location = location;
@@ -38,6 +40,7 @@ export class GameComponent extends AbstractGameInstance {
 
     public draw(){
         this.context.fillStyle = this.color;
+        this.context.border = this.border;
         this.context.beginPath();
         if (this.type === "arc"){
             this.context.arc(this.location.x, this.location.y, this.height/2, 0, Math.PI * 2, false);

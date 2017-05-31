@@ -106,7 +106,7 @@ export class BlockBreakerService extends AbstractGameService {
     public renderables: any[] = [];
     public paddle: GameComponent;
     public ball: GameComponent;
-    public brickArray: GameComponent[];
+    public brickArray: GameComponent[] = [];
 
     constructor() {
         super(new BlockBreakerGame());
@@ -140,40 +140,62 @@ export class BlockBreakerService extends AbstractGameService {
 
     public update(): void {
         this.context.clearRect(0, 0, this.canvas.nativeElement.width, this.canvas.nativeElement.height);
-        this.paddle.location.x = this.clamp(this.mouseLocation).x;
-        //this.paddle.location.x = this.clamp(this.mouseLocation.x - this.canvas.nativeElement.offsetLeft).x;
-        //this.paddle.location.x = this.clamp(0, this.canvas.nativeElement.width - this.paddle.width);
+        this.paddle.location.x = this.clamp(new TwoDLocation(this.mouseLocation.x - this.canvas.nativeElement.offsetLeft/2,
+            this.mouseLocation.y - this.canvas.nativeElement.offsetTop)).x;
         if (this.gameInstance.active) {
-            // this.ball.location.y = this.ball.location.y - 5;
-            // this.ball.location.x = this.ball.location.x - 5;
-            console.log(this.ball.location);
-            console.log(this.mouseLocation);
-            console.log(this.mouseLocation.x - this.canvas.nativeElement.offsetLeft);
-            console.log(this.mouseLocation.y - this.canvas.nativeElement.offsetTop);
-            this.ball.location = this.clamp(new TwoDLocation(this.ball.location.x - 5, this.ball.location.y - 5))
+            this.ball.location.y = this.ball.location.y - 5;
+            this.ball.location.x = this.ball.location.x - 5;
+            //this.ball.location = this.clamp(new TwoDLocation(this.ball.location.x - 5, this.ball.location.y - 5))
         } else {
-            this.ball.location.x = this.clamp(new TwoDLocation(this.mouseLocation.x - this.canvas.nativeElement.offsetLeft,
+            this.ball.location.x = this.clamp(new TwoDLocation(this.mouseLocation.x - this.canvas.nativeElement.offsetLeft/2,
                 this.mouseLocation.y - this.canvas.nativeElement.offsetTop)).x;
         }
         this.paddle.draw();
         this.ball.draw();
+        this.drawBricks();
     }
 
     public setCanvasInfoAndDraw(canvas: ElementRef): void {
         this.canvas = canvas;
+        this.canvas.nativeElement.width = 500;
+        this.canvas.nativeElement.height = 350;
         this.context = this.canvas.nativeElement.getContext("2d");
-
-        this.paddle = new GameComponent(this.canvas.nativeElement.getContext("2d"), 50, 10, "blue", null,
-            new TwoDLocation(100, 100), "rect");
-        this.ball = new GameComponent(this.canvas.nativeElement.getContext("2d"), 50, 10, "blue", null,
-            new TwoDLocation(100, 90), "arc");
+        this.paddle = new GameComponent(this.canvas.nativeElement.getContext("2d"), 50, 10, null, "blue", null,
+            new TwoDLocation(this.canvas.nativeElement.width/2-25, this.canvas.nativeElement.height-10), "rect");
+        this.ball = new GameComponent(this.canvas.nativeElement.getContext("2d"), 10, 10, null, "blue", null,
+            new TwoDLocation(this.canvas.nativeElement.width/2, this.canvas.nativeElement.height-21), "arc");
         this.context.clearRect(0, 0, this.canvas.nativeElement.width, this.canvas.nativeElement.height);
+        this.createBricksArray();
         this.paddle.draw();
         this.ball.draw();
+        this.drawBricks();
+    }
+
+    public createBricksArray(): void {
+        let brickColumns = this.canvas.nativeElement.width/10;
+        let brickRows = (this.canvas.nativeElement.height/3)/5;
+        for (let i: number = 0; i < this.canvas.nativeElement.width; i+=50) {
+            this.brickArray.push(new GameComponent(this.canvas.nativeElement.getContext("2d"), 50, 10, "#990000 10px solid", "#CC0000", null,
+                new TwoDLocation(i, 15), "rect"));
+            this.brickArray.push(new GameComponent(this.canvas.nativeElement.getContext("2d"), 50, 10, "#990000 10px solid", "#CC0000", null,
+                new TwoDLocation(i, 55), "rect"));
+            this.brickArray.push(new GameComponent(this.canvas.nativeElement.getContext("2d"), 50, 10, "#990000 10px solid", "#CC0000", null,
+                new TwoDLocation(i, 95), "rect"));
+        }
+    }
+
+    public drawBricks(): void {
+        this.brickArray.forEach(function(brick) {
+            brick.draw();
+        });
     }
 
     public setMousePosition(e: any): void {
         this.mouseLocation = new TwoDLocation(e.clientX - this.canvas.nativeElement.offsetLeft, e.clientY - this.canvas.nativeElement.offsetTop);
+    }
+
+    public detectCollision(): void {
+
     }
 
     public detectElementCollision(): void {
