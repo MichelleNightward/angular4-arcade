@@ -97,45 +97,35 @@ export class BlockBreakerService extends AbstractGameService {
 //     myGamePiece.gravity = n;
 // }
 
-    public gameInstance: BlockBreakerGame;
+    public intervalTimer: any;
+    public gameInstance: BlockBreakerGame = new BlockBreakerGame(0, 50, false, true, 150);
     public canvas: ElementRef;
     public canvasPosition: any = {};
     private context: CanvasRenderingContext2D;
     public mouseLocation: TwoDLocation = new TwoDLocation(100, 100);
     public renderables: any[] = [];
-    public paddle: GameComponent = new GameComponent(this.canvas, 50, 10, "#FF6A6A", null, this.mouseLocation, "rect");
-    public ball: GameComponent = new GameComponent(this.canvas, 50, 10, "#FF6A6A", null, new TwoDLocation(this.mouseLocation.x, 90),
-                                                    "arc");
+    public paddle: GameComponent;
+    public ball: GameComponent;
     public brickArray: GameComponent[];
 
     constructor() {
         super(new BlockBreakerGame());
     }
 
-    public setNewGameInstance() {
-    }
-
-    public startGame() {
-        this.gameInstance.active = true;
+    public startGame(): void {
         this.setCanvasInfoAndDraw(this.canvas);
-        // this.drawPaddle();
-        // this.drawBall();
         this.canvas.nativeElement.addEventListener('mousemove', (e: any) => {
             this.setMousePosition(e);
-            //this.update(e);
-            // this.updatePaddle(e);
-            // this.updateBall(e);
-            // this.paddle.renderRect(this.mouseLocation);
-            // this.ball.renderArc(this.mouseLocation);
-            this.paddle.followMouseMovement(e);
-            this.ball.followMouseMovement(e);
         });
         this.canvas.nativeElement.addEventListener('mousedown', (e: any) => {
-
+            this.gameInstance.active = true;
         });
+        this.intervalTimer = setInterval(()=> {
+            this.update();
+        }, 1000/30);
     }
 
-    public gameOver() {
+    public gameOver(): void {
         this.gameInstance.active = false;
         // TODO: get removeEventListener working
         // this.canvas.nativeElement.removeEventListener('mousemove', (e: any) => {
@@ -145,88 +135,75 @@ export class BlockBreakerService extends AbstractGameService {
         // this.drawPaddle();
         // this.drawBall();
         this.setCanvasInfoAndDraw(this.canvas);
+        clearInterval(this.intervalTimer);
     }
 
-    public update(e: any) {
-        // this.paddle.renderRect(this.mouseLocation);
-        // this.ball.renderArc(this.mouseLocation);
-        // this.drawPaddle();
-        // this.drawBall();
+    public update(): void {
+        this.context.clearRect(0, 0, this.canvas.nativeElement.width, this.canvas.nativeElement.height);
+        this.paddle.location.x = this.clamp(this.mouseLocation).x;
+        //this.paddle.location.x = this.clamp(this.mouseLocation.x - this.canvas.nativeElement.offsetLeft).x;
+        //this.paddle.location.x = this.clamp(0, this.canvas.nativeElement.width - this.paddle.width);
+        if (this.gameInstance.active) {
+            // this.ball.location.y = this.ball.location.y - 5;
+            // this.ball.location.x = this.ball.location.x - 5;
+            console.log(this.ball.location);
+            console.log(this.mouseLocation);
+            console.log(this.mouseLocation.x - this.canvas.nativeElement.offsetLeft);
+            console.log(this.mouseLocation.y - this.canvas.nativeElement.offsetTop);
+            this.ball.location = this.clamp(new TwoDLocation(this.ball.location.x - 5, this.ball.location.y - 5))
+        } else {
+            this.ball.location.x = this.clamp(new TwoDLocation(this.mouseLocation.x - this.canvas.nativeElement.offsetLeft,
+                this.mouseLocation.y - this.canvas.nativeElement.offsetTop)).x;
+        }
+        this.paddle.draw();
+        this.ball.draw();
     }
 
-    public setCanvasInfoAndDraw(canvas: ElementRef){
+    public setCanvasInfoAndDraw(canvas: ElementRef): void {
         this.canvas = canvas;
         this.context = this.canvas.nativeElement.getContext("2d");
-        this.paddle.context = this.canvas.nativeElement.getContext("2d");
-        this.ball.context = this.canvas.nativeElement.getContext("2d");
+
+        this.paddle = new GameComponent(this.canvas.nativeElement.getContext("2d"), 50, 10, "blue", null,
+            new TwoDLocation(100, 100), "rect");
+        this.ball = new GameComponent(this.canvas.nativeElement.getContext("2d"), 50, 10, "blue", null,
+            new TwoDLocation(100, 90), "arc");
         this.context.clearRect(0, 0, this.canvas.nativeElement.width, this.canvas.nativeElement.height);
-        this.paddle.renderRect(this.mouseLocation);
-        this.ball.renderArc(this.mouseLocation);
-        // this.drawPaddle();
-        // this.drawBall();
-        //this.canvasPosition = getPosition(canvas);
+        this.paddle.draw();
+        this.ball.draw();
     }
 
     public setMousePosition(e: any): void {
         this.mouseLocation = new TwoDLocation(e.clientX - this.canvas.nativeElement.offsetLeft, e.clientY - this.canvas.nativeElement.offsetTop);
     }
-    //
-    // public drawPaddle(): void {
-    //     // this.context.clearRect(this.mouseX, 100, 50, 10);
-    //     this.paddle.context.beginPath();
-    //     this.paddle.context.fillRect(this.mouseX, 100, 50, 10);
-    //     //this.context.arc(this.mouseX, 100, 50, 0, 2 * Math.PI, true);
-    //     this.paddle.context.fillStyle = "#FF6A6A";
-    //     this.paddle.context.fill();
-    //     //requestAnimationFrame();
-    // }
 
-    // public updatePaddle(e: any): void {
-    //     this.paddle.followMouseMovement(e);
-    //     this.paddle.renderRect();
-    // }
+    public detectElementCollision(): void {
 
-    // public drawBall(): void {
-    //     // this.context.clearRect(0, 0, this.canvas.nativeElement.width, this.canvas.nativeElement.height);
-    //     this.ball.context.beginPath();
-    //     //this.context.fillRect(this.mouseX, 100, 50, 10);
-    //     this.ball.context.arc(this.mouseX, 90, 5, 0, 2 * Math.PI, true);
-    //     this.ball.context.fillStyle = "#FF6A6A";
-    //     this.ball.context.fill();
-    // }
+    }
 
-    // public updateBall(e: any): void {
-    //     this.ball.followMouseMovement(e);
-    //     this.ball.renderArc();
-    // }
+    public detectWallCollision(): void {
 
-    // TODO: get support in place for rendering multiple objects
-    // public paddle(): void {
-    //     this.context.clearRect(0, 0, this.canvas.nativeElement.width, this.canvas.nativeElement.height);
-    //     this.context.beginPath();
-    //     this.context.fillRect(this.mouseX, 100, 50, 10);
-    //     //this.context.arc(this.mouseX, 100, 50, 0, 2 * Math.PI, true);
-    //     this.context.fillStyle = "#FF6A6A";
-    //     this.context.fill();
-    //     //requestAnimationFrame();
-    // }
-    //
-    // public ball(): void {
-    //     this.context.clearRect(0, 0, this.canvas.nativeElement.width, this.canvas.nativeElement.height);
-    //     //this.context.beginPath();
-    //     //this.context.fillRect(this.mouseX, 100, 50, 10);
-    //     this.context.arc(this.mouseX, 90, 5, 0, 2 * Math.PI, true);
-    //     this.context.fillStyle = "#FF6A6A";
-    //     this.context.fill();
-    // }
-    //
-    // public draw() {
-    //     this.context.clearRect(0, 0, this.canvas.nativeElement.width, this.canvas.nativeElement.height);
-    //     for (var i = 0; i < circles.length; i++) {
-    //         var myCircle = circles[i];
-    //         myCircle.update();
-    //     }
-    //     requestAnimationFrame(this.draw);
+    }
+
+    public clamp(location: TwoDLocation): TwoDLocation {
+        let x = location.x;
+        let y = location.y;
+        if (x > this.canvas.nativeElement.width) {
+            x = this.canvas.nativeElement.width;
+        }
+        if (x < 0){
+            x = 0;
+        }
+        if (y > this.canvas.nativeElement.height) {
+            y = this.canvas.nativeElement.height;
+        }
+        if (y < 0){
+            y = 0;
+        }
+        return new TwoDLocation(x,y)
+    }
+
+    // private clamp(min: number, max: number) {
+    //     Math.min(Math.max(min), max);
     // }
 
     // TODO: fix discrepancy between where mouse is and where paddle is

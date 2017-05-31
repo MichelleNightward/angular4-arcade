@@ -19,8 +19,9 @@ export class GameComponent extends AbstractGameInstance {
     public gravitySpeed: number;
     public hitPoints: number;
 
-    constructor(context?: any, width?: number, height?: number, color?: string, sprite?: string, location?: TwoDLocation, type?: string,
-                speed?: TwoDLocation, gravity?: number, gravitySpeed?: number, hitPoints?: number, id?: number) {
+    constructor(context?: any, width?: number, height?: number, color?: string, sprite?: string,
+                location?: TwoDLocation, type?: string, speed?: TwoDLocation, gravity?: number, gravitySpeed?: number,
+                hitPoints?: number, id?: number) {
         super(id);
         this.context = context;
         this.width = width;
@@ -35,44 +36,25 @@ export class GameComponent extends AbstractGameInstance {
         this.hitPoints = hitPoints;
     }
 
-    public newPosition() {
-        this.gravitySpeed += this.gravity;
-        this.location.x += this.speed.x;
-        this.location.y += this.speed.y + this.gravitySpeed;
-    }
-
-    public renderArc(newLocation: TwoDLocation) {
+    public draw(){
         this.context.fillStyle = this.color;
         this.context.beginPath();
-        this.context.arc(newLocation.x, 90, this.height/2, 0, Math.PI * 2, false);
+        if (this.type === "arc"){
+            this.context.arc(this.location.x, this.location.y, this.height/2, 0, Math.PI * 2, false);
+        } else if (this.type === "rect") {
+            this.context.fillRect(this.location.x, this.location.y, this.width, this.height);
+        }
         this.context.fill();
-        return this;
-    }
-
-    public renderRect(newLocation: TwoDLocation) {
-        this.context.fillStyle = this.color;
-        this.context.beginPath();
-        this.context.fillRect(newLocation.x, 100, 50, 10);
-        this.context.fill();
-        return this;
     }
 
     public update() {
 
     }
 
-    public followMouseMovement(e: any) {
-        console.log(e.clientX);
-        this.location = new TwoDLocation(e.clientX - this.context.offsetLeft, e.clientY - this.context.offsetTop);
-        // this.location.x = e.clientX - this.context.offsetLeft;
-        // this.location.y = e.clientY - this.context.offsetTop;
-        console.log(this.location.x);
-        // if (this.type === "arc") {
-        //     this.renderArc();
-        // } else {
-        //     this.renderRect();
-        // }
-        // return this;
-    }
+    // public newPosition() {
+    //     this.gravitySpeed += this.gravity;
+    //     this.location.x += this.speed.x;
+    //     this.location.y += this.speed.y + this.gravitySpeed;
+    // }
 
 }
