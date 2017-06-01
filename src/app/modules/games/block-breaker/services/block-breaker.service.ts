@@ -175,11 +175,11 @@ export class BlockBreakerService extends AbstractGameService {
         let brickColumns = this.canvas.nativeElement.width/10;
         let brickRows = (this.canvas.nativeElement.height/3)/5;
         for (let i: number = 0; i < this.canvas.nativeElement.width; i+=50) {
-            this.brickArray.push(new GameComponent(this.canvas.nativeElement.getContext("2d"), 50, 10, "#990000 10px solid", "#CC0000", null,
+            this.brickArray.push(new GameComponent(this.canvas.nativeElement.getContext("2d"), 45, 20, "#990000 10px solid", "#CC0000", null,
                 new TwoDLocation(i, 15), "rect"));
-            this.brickArray.push(new GameComponent(this.canvas.nativeElement.getContext("2d"), 50, 10, "#990000 10px solid", "#CC0000", null,
-                new TwoDLocation(i, 55), "rect"));
-            this.brickArray.push(new GameComponent(this.canvas.nativeElement.getContext("2d"), 50, 10, "#990000 10px solid", "#CC0000", null,
+            this.brickArray.push(new GameComponent(this.canvas.nativeElement.getContext("2d"), 45, 20, "#990000 10px solid", "#CC0000", null,
+                new TwoDLocation(i+22, 55), "rect"));
+            this.brickArray.push(new GameComponent(this.canvas.nativeElement.getContext("2d"), 45, 20, "#990000 10px solid", "#CC0000", null,
                 new TwoDLocation(i, 95), "rect"));
         }
     }
