@@ -15,13 +15,13 @@ export class GameComponent extends AbstractGameInstance {
     public sprite: string;
     public location: TwoDLocation;
     public type: string;
-    public speed: TwoDLocation;
+    public velocity: TwoDLocation;
     public gravity: number;
     public gravitySpeed: number;
     public hitPoints: number;
 
     constructor(context?: any, width?: number, height?: number, border?: string, color?: string, sprite?: string,
-                location?: TwoDLocation, type?: string, speed?: TwoDLocation, gravity?: number, gravitySpeed?: number,
+                location?: TwoDLocation, type?: string, velocity?: TwoDLocation, gravity?: number, gravitySpeed?: number,
                 hitPoints?: number, id?: number) {
         super(id);
         this.context = context;
@@ -32,7 +32,7 @@ export class GameComponent extends AbstractGameInstance {
         this.sprite = sprite;
         this.location = location;
         this.type = type;
-        this.speed = speed;
+        this.velocity = velocity;
         this.gravity = gravity;
         this.gravitySpeed = gravitySpeed;
         this.hitPoints = hitPoints;

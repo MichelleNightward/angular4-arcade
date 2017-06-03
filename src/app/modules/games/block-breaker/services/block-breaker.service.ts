@@ -143,8 +143,8 @@ export class BlockBreakerService extends AbstractGameService {
         this.paddle.location.x = this.clamp(new TwoDLocation(this.mouseLocation.x - this.canvas.nativeElement.offsetLeft/2,
             this.mouseLocation.y - this.canvas.nativeElement.offsetTop)).x;
         if (this.gameInstance.active) {
-            this.ball.location.y = this.ball.location.y - 5;
-            this.ball.location.x = this.ball.location.x - 5;
+            this.ball.location.y = this.ball.location.y + this.ball.velocity.y;
+            this.ball.location.x = this.ball.location.x + this.ball.velocity.x;
             //this.ball.location = this.clamp(new TwoDLocation(this.ball.location.x - 5, this.ball.location.y - 5))
         } else {
             this.ball.location.x = this.clamp(new TwoDLocation(this.mouseLocation.x - this.canvas.nativeElement.offsetLeft/2,
@@ -153,6 +153,7 @@ export class BlockBreakerService extends AbstractGameService {
         this.paddle.draw();
         this.ball.draw();
         this.drawBricks();
+        this.didBallHitSomething();
     }
 
     public setCanvasInfoAndDraw(canvas: ElementRef): void {
@@ -163,7 +164,7 @@ export class BlockBreakerService extends AbstractGameService {
         this.paddle = new GameComponent(this.canvas.nativeElement.getContext("2d"), 50, 10, null, "blue", null,
             new TwoDLocation(this.canvas.nativeElement.width/2-25, this.canvas.nativeElement.height-10), "rect");
         this.ball = new GameComponent(this.canvas.nativeElement.getContext("2d"), 10, 10, null, "blue", null,
-            new TwoDLocation(this.canvas.nativeElement.width/2, this.canvas.nativeElement.height-21), "arc");
+            new TwoDLocation(this.canvas.nativeElement.width/2, this.canvas.nativeElement.height-21), "arc", new TwoDLocation(-5,-5));
         this.context.clearRect(0, 0, this.canvas.nativeElement.width, this.canvas.nativeElement.height);
         this.createBricksArray();
         this.paddle.draw();
@@ -176,11 +177,11 @@ export class BlockBreakerService extends AbstractGameService {
         let brickRows = (this.canvas.nativeElement.height/3)/5;
         for (let i: number = 0; i < this.canvas.nativeElement.width; i+=50) {
             this.brickArray.push(new GameComponent(this.canvas.nativeElement.getContext("2d"), 45, 20, "#990000 10px solid", "#CC0000", null,
-                new TwoDLocation(i, 15), "rect"));
+                new TwoDLocation(i, 15), "rect", new TwoDLocation(0,0), 0, 0, 1));
             this.brickArray.push(new GameComponent(this.canvas.nativeElement.getContext("2d"), 45, 20, "#990000 10px solid", "#CC0000", null,
-                new TwoDLocation(i+22, 55), "rect"));
+                new TwoDLocation(i+22, 55), "rect", new TwoDLocation(0,0), 0, 0, 1));
             this.brickArray.push(new GameComponent(this.canvas.nativeElement.getContext("2d"), 45, 20, "#990000 10px solid", "#CC0000", null,
-                new TwoDLocation(i, 95), "rect"));
+                new TwoDLocation(i, 95), "rect", new TwoDLocation(0,0), 0, 0, 1));
         }
     }
 
@@ -194,16 +195,60 @@ export class BlockBreakerService extends AbstractGameService {
         this.mouseLocation = new TwoDLocation(e.clientX - this.canvas.nativeElement.offsetLeft, e.clientY - this.canvas.nativeElement.offsetTop);
     }
 
-    public detectCollision(): void {
+    // public setBallVelocity(N): void {
+        //let dot = this.ball.velocity
+        // var dot = this.velocity.dot(N);
+        // var v1 = N.multiplyScalar(2 * dot);
+        // this.velocity = v1.subSelf(this.velocity);
 
+        // dot: function ( v ) {
+        //
+        //     return this.x * v.x + this.y * v.y;
+        //
+        // },
+
+    // public static Vector2 Reflect(Vector2 vector, Vector2 normal)
+    //     {
+    //         return vector - 2 * Vector2.Dot(vector, normal) * normal;
+    //     }
+    // }
+
+    public didBallHitSomething(): void {
+        let ballCollision: boolean = false;
+        if (this.detectWallCollision(this.ball)){
+            ballCollision = true;
+        }
+        this.brickArray.forEach((brick) => {
+            if (this.detectElementCollision(this.ball, brick)){
+                brick.hitPoints = 0;
+                ballCollision = true;
+                return;
+            }
+        });
+        // Remove bricks that have no hitpoints left
+        this.brickArray = this.brickArray.filter((item) => item.hitPoints > 0);
+        if (ballCollision){
+            console.log("ball hit something");
+            // update ball trajectory here
+            this.ball.velocity.y *= -1;
+
+        }
     }
 
-    public detectElementCollision(): void {
-
+    public detectElementCollision(object1: GameComponent, object2: GameComponent): boolean {
+        if (object1.location.x < object2.location.x + object2.width  && object1.location.x + object1.width  > object2.location.x &&
+            object1.location.y < object2.location.y + object2.height && object1.location.y + object1.height > object2.location.y) {
+            // The objects are touching
+            return true;
+        }
     }
 
-    public detectWallCollision(): void {
-
+    public detectWallCollision(object: GameComponent): boolean {
+        if (object.location.x + object.width > object.context.width || object.location.x < 0 ||
+            object.location.y + object.height > object.context.height || object.location.y < 0){
+            // The object is touching the wall
+            return true;
+        }
     }
 
     public clamp(location: TwoDLocation): TwoDLocation {
@@ -223,10 +268,6 @@ export class BlockBreakerService extends AbstractGameService {
         }
         return new TwoDLocation(x,y)
     }
-
-    // private clamp(min: number, max: number) {
-    //     Math.min(Math.max(min), max);
-    // }
 
     // TODO: fix discrepancy between where mouse is and where paddle is
     // private getPosition(el: any) {
