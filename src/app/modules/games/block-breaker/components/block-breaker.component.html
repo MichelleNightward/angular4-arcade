@@ -1,23 +1,11 @@
 <h1>Block Breaker</h1>
-<!--<style>-->
-    <!--#block-breaker-canvas {-->
-        <!--position: relative;-->
-        <!--border: #333 10px solid;-->
-        <!--height: 350px;-->
-        <!--width: 550px;-->
-    <!--}-->
-<!--</style>-->
 <section test-hook="block-breaker">
     <span class="score">
-        {{gameInstance.score}}
+        {{gameScore()}}
     </span>
     <button (click)="gameInstance.active ? gameOver() : startGame()">
         <i class="fa-play" [attr.class]="gameInstance.active ? 'fa fa-stop' : 'fa fa-play'"></i>
     </button>
-    <!--<div #blockBreakerCanvas id="block-breaker-canvas">-->
-        <!--<div id="block-breaker-ball" [@followMouseMove]="shouldBallFollowMouse()"></div>-->
-        <!--<div id="block-breaker-paddle" [@followMouseMove]="shouldPaddleFollowMouse()"></div>-->
-    <!--</div>-->
     <canvas #blockBreakerCanvas id="block-breaker-canvas">
         Whoops! Looks like your browser doesn't support HTML5.
     </canvas>

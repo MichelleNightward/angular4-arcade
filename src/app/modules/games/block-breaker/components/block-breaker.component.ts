@@ -9,9 +9,6 @@ import {followMouseMove} from "../../../../shared/animations/follow-mouse-moveme
 @Component({
     selector: "block-breaker",
     templateUrl: "app/modules/games/block-breaker/components/block-breaker.component.html",
-    // animations: [
-    //     followMouseMove(100, 100),
-    // ],
 })
 export class BlockBreakerComponent extends AbstractGameComponent implements OnInit{
 
@@ -24,16 +21,7 @@ export class BlockBreakerComponent extends AbstractGameComponent implements OnIn
     }
 
     public ngOnInit() {
-        // this.canvas.nativeElement.on('mouseenter', () => {
-        //     this.mouseStatus = true;
-        // }).on('mouseleave', () => {
-        //     this.mouseStatus = false;
-        // });
         this.gameService.setCanvasInfoAndDraw(this.canvas);
-        // this.canvas.nativeElement.addEventListener('mousemove', (e: any) => {
-        //     this.gameService.setMousePosition(e);
-        //     this.gameService.drawPaddle();
-        // });
     }
 
     public startGame() {
@@ -46,11 +34,9 @@ export class BlockBreakerComponent extends AbstractGameComponent implements OnIn
         console.log("stop");
         this.gameService.gameOver();
     }
-    public shouldPaddleFollowMouse() {
-        return (this.mouseStatus);
-    }
-    public shouldBallFollowMouse() {
-        return (this.mouseStatus && !this.gameInstance.active);
+
+    public gameScore(): number {
+        return this.gameService.gameInstance.score;
     }
 
 }
