@@ -19,6 +19,9 @@ export class BlockBreakerService extends AbstractGameService {
     public ball: GameComponent;
     public brickArray: GameComponent[] = [];
 
+    private velocity: TwoDLocation = new TwoDLocation(-5, -5);
+    private numberOfLives: number = 3;
+
     constructor() {
         super(new BlockBreakerGame());
     }
@@ -38,6 +41,7 @@ export class BlockBreakerService extends AbstractGameService {
 
     public gameOver(): void {
         this.gameInstance.active = false;
+        this.gameInstance.score = 0;
         // TODO: get removeEventListener working
         // this.canvas.nativeElement.removeEventListener('mousemove', (e: any) => {
         //     this.setMousePosition(e);
@@ -55,14 +59,13 @@ export class BlockBreakerService extends AbstractGameService {
             this.handleBallVelocity();
             this.ball.location.y += this.ball.velocity.y;
             this.ball.location.x += this.ball.velocity.x;
-            //this.ball.location = this.clamp(new TwoDLocation(this.ball.location.x - 5, this.ball.location.y - 5))
         } else {
             this.ball.location.x = this.clamp(new TwoDLocation(this.mouseLocation.x - this.canvas.nativeElement.offsetLeft/2,
                 this.mouseLocation.y - this.canvas.nativeElement.offsetTop)).x;
         }
-        this.drawBricks();
-        this.paddle.draw();
         this.ball.draw();
+        this.paddle.draw();
+        this.drawBricks();
     }
 
     public setCanvasInfoAndDraw(canvas: ElementRef): void {
@@ -70,10 +73,10 @@ export class BlockBreakerService extends AbstractGameService {
         this.canvas.nativeElement.width = 500;
         this.canvas.nativeElement.height = 350;
         this.context = this.canvas.nativeElement.getContext("2d");
-        this.paddle = new GameComponent(this.canvas.nativeElement.getContext("2d"), 50, 10, null, "blue", null,
+        this.paddle = new GameComponent(this.canvas.nativeElement.getContext("2d"), 50, 5, null, "blue", null,
             new TwoDLocation(this.canvas.nativeElement.width/2-25, this.canvas.nativeElement.height-10), "rect");
         this.ball = new GameComponent(this.canvas.nativeElement.getContext("2d"), 10, 10, null, "blue", null,
-            new TwoDLocation(this.canvas.nativeElement.width/2, this.canvas.nativeElement.height-21), "arc", new TwoDLocation(-5,-5));
+            new TwoDLocation(this.canvas.nativeElement.width/2, this.canvas.nativeElement.height-21), "arc", this.velocity);
         this.context.clearRect(0, 0, this.canvas.nativeElement.width, this.canvas.nativeElement.height);
         this.createBricksArray();
         this.paddle.draw();
@@ -82,6 +85,7 @@ export class BlockBreakerService extends AbstractGameService {
     }
 
     public createBricksArray(): void {
+        this.brickArray = [];
         let brickColumns = this.canvas.nativeElement.width/10;
         let brickRows = (this.canvas.nativeElement.height/3)/5;
         for (let i: number = 0; i < this.canvas.nativeElement.width; i+=50) {
@@ -105,52 +109,45 @@ export class BlockBreakerService extends AbstractGameService {
     }
 
     public handleBallVelocity(): void {
-        this.handleWallCollision(this.ball);
+        this.handleWallCollision();
         this.handleBallCollisionWithPaddle();
+        this.handleBallCollisionWithBricks();
+    }
+
+    public handleBallCollisionWithBricks(): void {
         this.brickArray.forEach((brick) => {
-            //this.handleBallCollisionWithBrick(brick);
-            if (this.detectElementCollision(this.ball, brick)){
+            if (this.ball.location.x < brick.location.x + brick.width && this.ball.location.x + this.ball.width > brick.location.x &&
+                this.ball.location.y < brick.location.y + brick.height && this.ball.location.y + this.ball.height > brick.location.y) {
                 console.log("object is hitting brick");
-                brick.hitPoints = 0;
                 this.ball.velocity.y *= -1;
+                brick.hitPoints -= 1;
+                this.ball.location.y += this.ball.velocity.y;
+                this.ball.location.x += this.ball.velocity.x;
+                this.gameInstance.score += 10;
+                // Remove bricks that have no hitpoints left
+                this.brickArray = this.brickArray.filter((item) => item.hitPoints > 0);
                 return;
             }
         });
-        // Remove bricks that have no hitpoints left
-        this.brickArray = this.brickArray.filter((item) => item.hitPoints > 0);
-    }
-
-    public handleBallCollisionWithBrick(brick: GameComponent): void {
-        if (this.ball.location.x < brick.location.x + brick.width  && this.ball.location.x + this.ball.width  > brick.location.x &&
-            this.ball.location.y < brick.location.y + brick.height && this.ball.location.y + this.ball.height > brick.location.y) {
-            // The objects are touching
-            console.log("object is hitting brick");
-            this.ball.velocity.y *= -1;
-            console.log(this.ball.velocity);
-            brick.hitPoints -= 1;
-            this.gameInstance.score += 10;
-        }
     }
 
     public handleBallCollisionWithPaddle(): void {
         if (this.ball.location.x < this.paddle.location.x + this.paddle.width  && this.ball.location.x + this.ball.width  > this.paddle.location.x &&
             this.ball.location.y < this.paddle.location.y + this.paddle.height && this.ball.location.y + this.ball.height > this.paddle.location.y) {
-            // The objects are touching
             console.log("object is hitting paddle");
             this.ball.velocity.y *= -1;
-            console.log(this.ball.velocity);
         }
     }
 
-    public detectElementCollision(object1: GameComponent, object2: GameComponent): boolean {
-        if (object1.location.x < object2.location.x + object2.width  && object1.location.x + object1.width  > object2.location.x &&
-            object1.location.y < object2.location.y + object2.height && object1.location.y + object1.height > object2.location.y) {
-            // The objects are touching
-            return true;
-        }
-    }
+    // public detectElementCollision(object1: GameComponent, object2: GameComponent): boolean {
+    //     if (object1.location.x < object2.location.x + object2.width  && object1.location.x + object1.width  > object2.location.x &&
+    //         object1.location.y < object2.location.y + object2.height && object1.location.y + object1.height > object2.location.y) {
+    //         // The objects are touching
+    //         return true;
+    //     }
+    // }
 
-    public handleWallCollision(object: GameComponent): void {
+    public handleWallCollision(): void {
         if(this.ball.location.x > this.canvas.nativeElement.width-(this.ball.width/2) || this.ball.location.x < this.ball.width/2) {
             this.ball.velocity.x *= -1 ;
         }
