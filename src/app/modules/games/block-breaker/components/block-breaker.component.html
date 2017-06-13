@@ -3,8 +3,11 @@
     <span class="score">
         {{gameScore()}}
     </span>
-    <button (click)="gameInstance.active ? gameOver() : startGame()">
-        <i class="fa-play" [attr.class]="gameInstance.active ? 'fa fa-stop' : 'fa fa-play'"></i>
+    <span class="lives">
+        {{gameLives()}}
+    </span>
+    <button (click)="isGameActive() ? gameOver() : startGame()">
+        <i class="fa-play" [attr.class]="isGameActive() ? 'fa fa-stop' : 'fa fa-play'"></i>
     </button>
     <canvas #blockBreakerCanvas id="block-breaker-canvas">
         Whoops! Looks like your browser doesn't support HTML5.

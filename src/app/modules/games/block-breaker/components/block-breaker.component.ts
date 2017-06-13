@@ -25,7 +25,6 @@ export class BlockBreakerComponent extends AbstractGameComponent implements OnIn
     }
 
     public startGame() {
-        // TODO look into bug where start and stop get wonky
         console.log("start");
         this.gameService.startGame();
     }
@@ -35,8 +34,19 @@ export class BlockBreakerComponent extends AbstractGameComponent implements OnIn
         this.gameService.gameOver();
     }
 
+    // TODO: get a better way of juggling gameInstance.active while keeping in mind # of lives left
+    public isGameActive(): boolean {
+        //console.log(!this.gameService.gameInstance.active && this.gameLives() === 3);
+       // console.log(this.gameLives());
+        return this.gameService.gameInstance.active || this.gameLives() !== 3;
+    }
+
     public gameScore(): number {
         return this.gameService.gameInstance.score;
+    }
+
+    public gameLives(): number {
+        return this.gameService.numberOfLives;
     }
 
 }

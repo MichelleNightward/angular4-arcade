@@ -9,6 +9,7 @@ import {TwoDLocation} from "../../../../shared/models/two-d-location";
 @Injectable()
 export class BlockBreakerService extends AbstractGameService {
     public intervalTimer: any;
+    public numberOfLives: number = 3;
     public gameInstance: BlockBreakerGame = new BlockBreakerGame(0, 50, false, true, 150);
     public canvas: ElementRef;
     public canvasPosition: any = {};
@@ -20,13 +21,13 @@ export class BlockBreakerService extends AbstractGameService {
     public brickArray: GameComponent[] = [];
 
     private velocity: TwoDLocation = new TwoDLocation(-5, -5);
-    private numberOfLives: number = 3;
 
     constructor() {
         super(new BlockBreakerGame());
     }
 
     public startGame(): void {
+        console.log(this.ball.velocity);
         this.setCanvasInfoAndDraw(this.canvas);
         this.canvas.nativeElement.addEventListener('mousemove', (e: any) => {
             this.setMousePosition(e);
@@ -34,6 +35,7 @@ export class BlockBreakerService extends AbstractGameService {
         this.canvas.nativeElement.addEventListener('mousedown', (e: any) => {
             this.gameInstance.active = true;
         });
+        clearInterval(this.intervalTimer);
         this.intervalTimer = setInterval(()=> {
             this.update();
         }, 1000/30);
@@ -42,6 +44,7 @@ export class BlockBreakerService extends AbstractGameService {
     public gameOver(): void {
         this.gameInstance.active = false;
         this.gameInstance.score = 0;
+        this.numberOfLives = 3;
         // TODO: get removeEventListener working
         // this.canvas.nativeElement.removeEventListener('mousemove', (e: any) => {
         //     this.setMousePosition(e);
@@ -49,6 +52,12 @@ export class BlockBreakerService extends AbstractGameService {
         // });
         this.setCanvasInfoAndDraw(this.canvas);
         clearInterval(this.intervalTimer);
+    }
+
+    public loseLifeResetGameField(): void {
+        this.gameInstance.active = false;
+        this.numberOfLives -= 1;
+        this.setCanvasInfoAndDraw(this.canvas);
     }
 
     public update(): void {
@@ -63,9 +72,14 @@ export class BlockBreakerService extends AbstractGameService {
             this.ball.location.x = this.clamp(new TwoDLocation(this.mouseLocation.x - this.canvas.nativeElement.offsetLeft/2,
                 this.mouseLocation.y - this.canvas.nativeElement.offsetTop)).x;
         }
-        this.ball.draw();
         this.paddle.draw();
-        this.drawBricks();
+        this.ball.draw();
+        if (this.brickArray.length > 0){
+            this.drawBricks();
+        } else {
+            this.context.font = '48px serif';
+            this.context.fillText('Victory!', 10, 50);
+        }
     }
 
     public setCanvasInfoAndDraw(canvas: ElementRef): void {
@@ -78,7 +92,9 @@ export class BlockBreakerService extends AbstractGameService {
         this.ball = new GameComponent(this.canvas.nativeElement.getContext("2d"), 10, 10, null, "blue", null,
             new TwoDLocation(this.canvas.nativeElement.width/2, this.canvas.nativeElement.height-21), "arc", this.velocity);
         this.context.clearRect(0, 0, this.canvas.nativeElement.width, this.canvas.nativeElement.height);
-        this.createBricksArray();
+        if (this.numberOfLives < 0 || this.numberOfLives === 3){
+            this.createBricksArray();
+        }
         this.paddle.draw();
         this.ball.draw();
         this.drawBricks();
@@ -154,8 +170,10 @@ export class BlockBreakerService extends AbstractGameService {
         if(this.ball.location.y < this.ball.width/2) {
             this.ball.velocity.y *= -1;
         }
-        if (this.ball.location.y > this.canvas.nativeElement.height-(this.ball.width/2)) {
+        if (this.ball.location.y > this.canvas.nativeElement.height-(this.ball.width/2) && this.numberOfLives === 0) {
             this.gameOver();
+        } else if (this.ball.location.y > this.canvas.nativeElement.height-(this.ball.width/2) && this.numberOfLives > 0) {
+            this.loseLifeResetGameField();
         }
     }
 
