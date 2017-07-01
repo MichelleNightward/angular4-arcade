@@ -1,5 +1,5 @@
-import {TwoDLocation} from "../../../../shared/models/two-d-location";
-import {AbstractGameInstance} from "../../../../abstracted-resources/models/abstract-game-instance";
+import {TwoDLocation} from "./two-d-location";
+import {AbstractGameInstance} from "../../abstracted-resources/models/abstract-game-instance";
 import {Injectable, ElementRef} from "@angular/core";
 /**
  * Created by michellenightward on 5/18/17.
