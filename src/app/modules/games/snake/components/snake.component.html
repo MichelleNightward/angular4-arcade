@@ -1,16 +1,19 @@
 <style>
-    :host {
-        margin: 10px;
-        box-shadow: 0 4px 5px -2px rgba(0,0,0,.2),0 7px 10px 1px rgba(0,0,0,.14),0 2px 16px 1px rgba(0,0,0,.12);
+    .snake-game {
+        padding: 0;
+        margin: auto;
         display: block;
     }
     .row {
-        height: 28px;
+        height: 20px;
+    }
+    .column {
+        background: #FFFFFF;
     }
     .column, .food, .snake-creature {
         border: 1px dotted #455A64;
-        width: 28px;
-        height: 28px;
+        width: 20px;
+        height: 20px;
         display: inline-block;
         vertical-align: middle;
         text-align: center;
@@ -24,10 +27,7 @@
 </style>
 
 <h1>SNEK</h1>
-<i class="fa fa-ra"></i>
-<div class="snake-creature"></div>
-<div class="food"></div>
-<section test-hook="snake">
+<div class="snake-game">
     <span class="score">
         {{gameInstance.score}}
     </span>
@@ -41,4 +41,4 @@
             <snake-creature class="snake-creature" *ngIf="snakeCells(x, y)"></snake-creature>
         </div>
     </div>
-</section>
+</div>

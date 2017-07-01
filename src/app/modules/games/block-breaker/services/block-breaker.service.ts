@@ -1,220 +1,205 @@
 import {BlockBreakerGame} from "../models/block-breaker-game";
 import {AbstractGameService} from "../../../../abstracted-resources/service-and-utils/abstract-game.service";
 import {Injectable, ElementRef} from "@angular/core";
-import {GameComponent} from "../models/game-component";
+import {GameComponent} from "../../../../shared/models/game-component";
+import {TwoDLocation} from "../../../../shared/models/two-d-location";
 /**
  * Created by michellenightward on 4/26/17.
  */
 @Injectable()
 export class BlockBreakerService extends AbstractGameService {
-    // public myGamePiece;
-    // public myObstacles = [];
-    // public myScore;
-    //
-    // public myGameArea = {
-    //     canvas : document.createElement("canvas"),
-    //     start : function() {
-    //         this.canvas.width = 480;
-    //         this.canvas.height = 270;
-    //         this.context = this.canvas.getContext("2d");
-    //         document.body.insertBefore(this.canvas, document.body.childNodes[0]);
-    //         this.frameNo = 0;
-    //         this.interval = setInterval(updateGameArea, 20);
-    //     },
-    //     clear : function() {
-    //         this.context.clearRect(0, 0, this.canvas.width, this.canvas.height);
-    //     }
-    // };
-
-//     public startGame() {
-//         let myGamePiece = new component(30, 30, "red", 10, 120);
-//         myGamePiece.gravity = 0.05;
-//         let myScore = new component("30px", "Consolas", "black", 280, 40, "text");
-//         this.myGameArea.start();
-//     }
-//
-//     public hitBottom() {
-//         var rockbottom = myGameArea.canvas.height - this.height;
-//         if (this.y > rockbottom) {
-//             this.y = rockbottom;
-//             this.gravitySpeed = 0;
-//         }
-//     }
-//
-//     public crashWith(otherobj) {
-//         let myleft = this.x;
-//         let myright = this.x + (this.width);
-//         let mytop = this.y;
-//         let mybottom = this.y + (this.height);
-//         let otherleft = otherobj.x;
-//         let otherright = otherobj.x + (otherobj.width);
-//         let othertop = otherobj.y;
-//         let otherbottom = otherobj.y + (otherobj.height);
-//         let crash = true;
-//         if ((mybottom < othertop) || (mytop > otherbottom) || (myright < otherleft) || (myleft > otherright)) {
-//             crash = false;
-//         }
-//         return crash;
-//     }
-//
-//     function updateGameArea() {
-//     var x, height, gap, minHeight, maxHeight, minGap, maxGap;
-//     for (i = 0; i < myObstacles.length; i += 1) {
-//         if (myGamePiece.crashWith(myObstacles[i])) {
-//             return;
-//         }
-//     }
-//     myGameArea.clear();
-//     myGameArea.frameNo += 1;
-//     if (myGameArea.frameNo == 1 || everyinterval(150)) {
-//         x = myGameArea.canvas.width;
-//         minHeight = 20;
-//         maxHeight = 200;
-//         height = Math.floor(Math.random()*(maxHeight-minHeight+1)+minHeight);
-//         minGap = 50;
-//         maxGap = 200;
-//         gap = Math.floor(Math.random()*(maxGap-minGap+1)+minGap);
-//         myObstacles.push(new component(10, height, "green", x, 0));
-//         myObstacles.push(new component(10, x - height - gap, "green", x, height + gap));
-//     }
-//     for (i = 0; i < myObstacles.length; i += 1) {
-//         myObstacles[i].x += -1;
-//         myObstacles[i].update();
-//     }
-//     myScore.text="SCORE: " + myGameArea.frameNo;
-//     myScore.update();
-//     myGamePiece.newPos();
-//     myGamePiece.update();
-// }
-//
-//     function everyinterval(n) {
-//     if ((myGameArea.frameNo / n) % 1 == 0) {return true;}
-//     return false;
-// }
-//
-//     function accelerate(n) {
-//     myGamePiece.gravity = n;
-// }
-
-    public gameInstance: BlockBreakerGame;
+    public intervalTimer: any;
+    public numberOfLives: number = 3;
+    public gameInstance: BlockBreakerGame = new BlockBreakerGame(0, 50, false, true, 150);
     public canvas: ElementRef;
     public canvasPosition: any = {};
     private context: CanvasRenderingContext2D;
-    public mouseX: number = 100;
-    public mouseY: number = 100;
+    public mouseLocation: TwoDLocation = new TwoDLocation(100, 100);
     public renderables: any[] = [];
-    public paddle: GameComponent = new GameComponent(this.canvas);
-    public ball: GameComponent = new GameComponent(this.canvas);
+    public paddle: GameComponent;
+    public ball: GameComponent;
+    public brickArray: GameComponent[] = [];
+
+    private velocity: TwoDLocation = new TwoDLocation(-5, -5);
 
     constructor() {
         super(new BlockBreakerGame());
     }
 
-    public setNewGameInstance() {
-    }
-
-    public startGame() {
-        this.gameInstance.active = true;
+    public startGame(): void {
+        this.setCanvasInfoAndDraw(this.canvas);
         this.canvas.nativeElement.addEventListener('mousemove', (e: any) => {
             this.setMousePosition(e);
-            this.drawPaddle();
-            this.drawBall();
         });
         this.canvas.nativeElement.addEventListener('mousedown', (e: any) => {
-
+            this.gameInstance.active = true;
         });
+        clearInterval(this.intervalTimer);
+        this.intervalTimer = setInterval(()=> {
+            this.update();
+        }, 1000/30);
     }
 
-    public gameOver() {
+    public gameOver(): void {
         this.gameInstance.active = false;
-        // TODO: get removeEventListener working
-        // this.canvas.nativeElement.removeEventListener('mousemove', (e: any) => {
-        //     this.setMousePosition(e);
-        //     this.drawPaddle();
-        // });
-        this.drawPaddle();
-        this.drawBall();
+        this.gameInstance.score = 0;
+        this.numberOfLives = 3;
+        this.setCanvasInfoAndDraw(this.canvas);
+        clearInterval(this.intervalTimer);
     }
 
-    public update(e: any) {
+    public loseLifeResetGameField(): void {
+        this.gameInstance.active = false;
+        this.numberOfLives -= 1;
+        this.setCanvasInfoAndDraw(this.canvas);
     }
 
-    public setCanvasInfo(canvas: ElementRef){
+    public update(): void {
+        this.context.clearRect(0, 0, this.canvas.nativeElement.width, this.canvas.nativeElement.height);
+        this.paddle.location.x = this.clamp(new TwoDLocation(this.mouseLocation.x - this.paddle.width,
+            this.mouseLocation.y - this.canvas.nativeElement.offsetTop)).x;
+        if (this.gameInstance.active) {
+            this.handleBallVelocity();
+            this.ball.location.y += this.ball.velocity.y;
+            this.ball.location.x += this.ball.velocity.x;
+        } else {
+            this.ball.location.x = this.paddle.location.x + this.paddle.width/2;
+        }
+        this.paddle.draw();
+        this.ball.draw();
+        if (this.brickArray.length > 0){
+            this.drawBricks();
+        } else {
+            this.context.font = '48px serif';
+            this.context.fillText('Victory!', 10, 50);
+        }
+    }
+
+    public setCanvasInfoAndDraw(canvas: ElementRef): void {
         this.canvas = canvas;
-        //this.context = this.canvas.nativeElement.getContext("2d");
-        this.paddle.context = this.canvas.nativeElement.getContext("2d");
-        this.ball.context = this.canvas.nativeElement.getContext("2d");
-        this.drawPaddle();
-        this.drawBall();
-        //this.canvasPosition = getPosition(canvas);
+        this.canvas.nativeElement.width = 500;
+        this.canvas.nativeElement.height = 350;
+        this.context = this.canvas.nativeElement.getContext("2d");
+        this.context.strokeRect(0, 0, this.canvas.nativeElement.width, this.canvas.nativeElement.height);
+        this.canvas.nativeElement.style.border = '2px solid #000';
+        this.canvas.nativeElement.style.background = "#FFFFFF";
+        this.paddle = new GameComponent(this.canvas.nativeElement.getContext("2d"), 50, 15, null, "blue", null,
+            new TwoDLocation(this.canvas.nativeElement.width/2-25, this.canvas.nativeElement.height-10), "rect");
+        this.ball = new GameComponent(this.canvas.nativeElement.getContext("2d"), 10, 10, null, "blue", null,
+            new TwoDLocation(this.canvas.nativeElement.width/2, this.canvas.nativeElement.height-21), "arc", this.velocity);
+        this.context.clearRect(0, 0, this.canvas.nativeElement.width, this.canvas.nativeElement.height);
+        if (this.numberOfLives < 0 || this.numberOfLives === 3){
+            this.createBricksArray();
+            this.paddle.draw();
+            this.ball.draw();
+            this.drawBricks();
+        } else {
+
+            this.update();
+        }
+    }
+
+    public createBricksArray(): void {
+        this.brickArray = [];
+        let brickColumns = this.canvas.nativeElement.width/10;
+        let brickRows = (this.canvas.nativeElement.height/3)/5;
+        for (let i: number = 0; i < this.canvas.nativeElement.width; i+=50) {
+            this.brickArray.push(new GameComponent(this.canvas.nativeElement.getContext("2d"), 45, 20, "#990000 10px solid", "#CC0000", null,
+                new TwoDLocation(i, 15), "rect", new TwoDLocation(0,0), 0, 0, 1));
+            this.brickArray.push(new GameComponent(this.canvas.nativeElement.getContext("2d"), 45, 20, "#990000 10px solid", "#CC0000", null,
+                new TwoDLocation(i+22, 55), "rect", new TwoDLocation(0,0), 0, 0, 1));
+            this.brickArray.push(new GameComponent(this.canvas.nativeElement.getContext("2d"), 45, 20, "#990000 10px solid", "#CC0000", null,
+                new TwoDLocation(i, 95), "rect", new TwoDLocation(0,0), 0, 0, 1));
+        }
+    }
+
+    public drawBricks(): void {
+        this.brickArray.forEach(function(brick) {
+            brick.draw();
+        });
     }
 
     public setMousePosition(e: any): void {
-        // this.getPosition(this.canvas);
-        this.mouseX = e.clientX - this.canvas.nativeElement.offsetLeft; // - this.canvasPosition.x;
-        this.mouseY = e.clientY - this.canvas.nativeElement.offsetTop; // - this.canvasPosition.Y;
+        this.mouseLocation = new TwoDLocation(e.clientX - this.canvas.nativeElement.offsetLeft, e.clientY - this.canvas.nativeElement.offsetTop);
     }
 
-    public drawPaddle(): void {
-        this.paddle.context.clearRect(0, 0, this.canvas.nativeElement.width, this.canvas.nativeElement.height);
-        this.paddle.context.beginPath();
-        this.paddle.context.fillRect(this.mouseX, 100, 50, 10);
-        //this.context.arc(this.mouseX, 100, 50, 0, 2 * Math.PI, true);
-        this.paddle.context.fillStyle = "#FF6A6A";
-        this.paddle.context.fill();
-        //requestAnimationFrame();
+    public handleBallVelocity(): void {
+        this.handleWallCollision();
+        this.handleBallCollisionWithPaddle();
+        this.handleBallCollisionWithBricks();
     }
 
-    public drawBall(): void {
-        this.ball.context.clearRect(0, 0, this.canvas.nativeElement.width, this.canvas.nativeElement.height);
-        //this.context.beginPath();
-        //this.context.fillRect(this.mouseX, 100, 50, 10);
-        this.ball.context.arc(this.mouseX, 90, 5, 0, 2 * Math.PI, true);
-        this.ball.context.fillStyle = "#FF6A6A";
-        this.ball.context.fill();
+    public handleBallCollisionWithBricks(): void {
+        this.brickArray.forEach((brick) => {
+            if (this.ball.location.x < brick.location.x + brick.width && this.ball.location.x + this.ball.width > brick.location.x &&
+                this.ball.location.y < brick.location.y + brick.height && this.ball.location.y + this.ball.height > brick.location.y) {
+                console.log("object is hitting brick");
+                this.ball.velocity.y *= -1;
+                brick.hitPoints -= 1;
+                this.ball.location.y += this.ball.velocity.y;
+                this.ball.location.x += this.ball.velocity.x;
+                this.gameInstance.score += 10;
+                // Remove bricks that have no hitpoints left
+                this.brickArray = this.brickArray.filter((item) => item.hitPoints > 0);
+                return;
+            }
+        });
     }
 
-    // TODO: get support in place for rendering multiple objects
-    // public paddle(): void {
-    //     this.context.clearRect(0, 0, this.canvas.nativeElement.width, this.canvas.nativeElement.height);
-    //     this.context.beginPath();
-    //     this.context.fillRect(this.mouseX, 100, 50, 10);
-    //     //this.context.arc(this.mouseX, 100, 50, 0, 2 * Math.PI, true);
-    //     this.context.fillStyle = "#FF6A6A";
-    //     this.context.fill();
-    //     //requestAnimationFrame();
-    // }
-    //
-    // public ball(): void {
-    //     this.context.clearRect(0, 0, this.canvas.nativeElement.width, this.canvas.nativeElement.height);
-    //     //this.context.beginPath();
-    //     //this.context.fillRect(this.mouseX, 100, 50, 10);
-    //     this.context.arc(this.mouseX, 90, 5, 0, 2 * Math.PI, true);
-    //     this.context.fillStyle = "#FF6A6A";
-    //     this.context.fill();
-    // }
-    //
-    // public draw() {
-    //     this.context.clearRect(0, 0, this.canvas.nativeElement.width, this.canvas.nativeElement.height);
-    //     for (var i = 0; i < circles.length; i++) {
-    //         var myCircle = circles[i];
-    //         myCircle.update();
+    public handleBallCollisionWithPaddle(): void {
+        if (this.ball.location.x < this.paddle.location.x + this.paddle.width  && this.ball.location.x + this.ball.width  > this.paddle.location.x &&
+            // this.ball.location.y < this.paddle.location.y + this.paddle.height &&
+            this.ball.location.y + this.ball.height > this.paddle.location.y) {
+            console.log("object is hitting top of paddle");
+            this.ball.velocity.y *= -1;
+        }
+        // if ((this.ball.location.x == this.paddle.location.x + this.paddle.width  || this.ball.location.x + this.ball.width  == this.paddle.location.x) &&
+        //     this.ball.location.y < this.paddle.location.y + this.paddle.height && this.ball.location.y + this.ball.height > this.paddle.location.y) {
+        //     console.log("object is hitting side of paddle");
+        //     this.ball.velocity.x *= -1;
+        // }
+    }
+
+    // public detectElementCollision(object1: GameComponent, object2: GameComponent): boolean {
+    //     if (object1.location.x < object2.location.x + object2.width  && object1.location.x + object1.width  > object2.location.x &&
+    //         object1.location.y < object2.location.y + object2.height && object1.location.y + object1.height > object2.location.y) {
+    //         // The objects are touching
+    //         return true;
     //     }
-    //     requestAnimationFrame(this.draw);
     // }
 
-    // TODO: fix discrepancy between where mouse is and where paddle is
-    // private getPosition(el: any) {
-    //     var xPosition = 0;
-    //     var yPosition = 0;
-    //     while (el) {
-    //         xPosition += (el.offsetLeft - el.scrollLeft + el.clientLeft);
-    //         yPosition += (el.offsetTop - el.scrollTop + el.clientTop);
-    //         el = el.offsetParent;
-    //     }
-    //     this.canvasPosition = {
-    //         x: xPosition,
-    //         y: yPosition
-    //     };
-    // }
+    public handleWallCollision(): void {
+        // if ball hits left or right wall
+        if(this.ball.location.x > this.canvas.nativeElement.width-(this.ball.width/2) || this.ball.location.x < this.ball.width/2) {
+            this.ball.velocity.x *= -1 ;
+        }
+        // if ball hits ceiling
+        if(this.ball.location.y < this.ball.width/2) {
+            this.ball.velocity.y *= -1;
+        }
+        // if ball hits floor
+        if (this.ball.location.y > this.canvas.nativeElement.height-(this.ball.width/2) && this.numberOfLives === 0) {
+            this.gameOver();
+        } else if (this.ball.location.y > this.canvas.nativeElement.height-(this.ball.width/2) && this.numberOfLives > 0) {
+            this.loseLifeResetGameField();
+        }
+    }
+
+    public clamp(location: TwoDLocation): TwoDLocation {
+        let x = location.x;
+        let y = location.y;
+        if (x > this.canvas.nativeElement.width) {
+            x = this.canvas.nativeElement.width;
+        }
+        if (x < 0){
+            x = 0;
+        }
+        if (y > this.canvas.nativeElement.height) {
+            y = this.canvas.nativeElement.height;
+        }
+        if (y < 0){
+            y = 0;
+        }
+        return new TwoDLocation(x,y)
+    }
 }

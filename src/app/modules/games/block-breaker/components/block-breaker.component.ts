@@ -9,9 +9,6 @@ import {followMouseMove} from "../../../../shared/animations/follow-mouse-moveme
 @Component({
     selector: "block-breaker",
     templateUrl: "app/modules/games/block-breaker/components/block-breaker.component.html",
-    // animations: [
-    //     followMouseMove(100, 100),
-    // ],
 })
 export class BlockBreakerComponent extends AbstractGameComponent implements OnInit{
 
@@ -24,20 +21,10 @@ export class BlockBreakerComponent extends AbstractGameComponent implements OnIn
     }
 
     public ngOnInit() {
-        // this.canvas.nativeElement.on('mouseenter', () => {
-        //     this.mouseStatus = true;
-        // }).on('mouseleave', () => {
-        //     this.mouseStatus = false;
-        // });
-        this.gameService.setCanvasInfo(this.canvas);
-        // this.canvas.nativeElement.addEventListener('mousemove', (e: any) => {
-        //     this.gameService.setMousePosition(e);
-        //     this.gameService.drawPaddle();
-        // });
+        this.gameService.setCanvasInfoAndDraw(this.canvas);
     }
 
     public startGame() {
-        // TODO look into bug where start and stop get wonky
         console.log("start");
         this.gameService.startGame();
     }
@@ -46,11 +33,20 @@ export class BlockBreakerComponent extends AbstractGameComponent implements OnIn
         console.log("stop");
         this.gameService.gameOver();
     }
-    public shouldPaddleFollowMouse() {
-        return (this.mouseStatus);
+
+    // TODO: get a better way of juggling gameInstance.active while keeping in mind # of lives left
+    public isGameActive(): boolean {
+        //console.log(!this.gameService.gameInstance.active && this.gameLives() === 3);
+       // console.log(this.gameLives());
+        return this.gameService.gameInstance.active || this.gameLives() !== 3;
     }
-    public shouldBallFollowMouse() {
-        return (this.mouseStatus && !this.gameInstance.active);
+
+    public gameScore(): number {
+        return this.gameService.gameInstance.score;
+    }
+
+    public gameLives(): number {
+        return this.gameService.numberOfLives;
     }
 
 }
