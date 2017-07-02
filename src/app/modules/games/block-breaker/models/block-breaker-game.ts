@@ -8,11 +8,13 @@ import {Injectable} from "@angular/core";
 export class BlockBreakerGame extends AbstractGameInstance {
 
     public speed: number;
+    public isBallInMotion: boolean;
 
-    constructor(score?: number,
-                boardSize?: number, active?: boolean, gameOver?: boolean, speed?: number, id?: number) {
+    constructor(score?: number, boardSize?: number, active?: boolean, gameOver?: boolean, speed?: number,
+        isBallInMotion?: boolean, id?: number) {
         super(score, boardSize, active, gameOver, id);
         this.speed = speed;
+        this.isBallInMotion = isBallInMotion;
     }
 
     public static collectionName(): string {

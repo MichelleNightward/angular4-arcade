@@ -29,7 +29,7 @@
 <h1>SNEK</h1>
 <div class="snake-game">
     <span class="score">
-        {{gameInstance.score}}
+        Score: {{gameInstance.score}}
     </span>
     <button (click)="gameInstance.active ? gameOver() : startGame()">
         <i class="fa-play" [attr.class]="gameInstance.active ? 'fa fa-stop' : 'fa fa-play'"></i>

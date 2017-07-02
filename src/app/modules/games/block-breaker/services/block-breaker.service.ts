@@ -10,12 +10,11 @@ import {TwoDLocation} from "../../../../shared/models/two-d-location";
 export class BlockBreakerService extends AbstractGameService {
     public intervalTimer: any;
     public numberOfLives: number = 3;
-    public gameInstance: BlockBreakerGame = new BlockBreakerGame(0, 50, false, true, 150);
+    public gameInstance: BlockBreakerGame = new BlockBreakerGame(0, 50, false, true, 150, false);
     public canvas: ElementRef;
     public canvasPosition: any = {};
     private context: CanvasRenderingContext2D;
     public mouseLocation: TwoDLocation = new TwoDLocation(100, 100);
-    public renderables: any[] = [];
     public paddle: GameComponent;
     public ball: GameComponent;
     public brickArray: GameComponent[] = [];
@@ -27,12 +26,13 @@ export class BlockBreakerService extends AbstractGameService {
     }
 
     public startGame(): void {
+        this.gameInstance.active = true;
         this.setCanvasInfoAndDraw(this.canvas);
         this.canvas.nativeElement.addEventListener('mousemove', (e: any) => {
             this.setMousePosition(e);
         });
         this.canvas.nativeElement.addEventListener('mousedown', (e: any) => {
-            this.gameInstance.active = true;
+            this.gameInstance.isBallInMotion = true;
         });
         clearInterval(this.intervalTimer);
         this.intervalTimer = setInterval(()=> {
@@ -42,14 +42,15 @@ export class BlockBreakerService extends AbstractGameService {
 
     public gameOver(): void {
         this.gameInstance.active = false;
+        this.gameInstance.isBallInMotion = false;
         this.gameInstance.score = 0;
         this.numberOfLives = 3;
-        this.setCanvasInfoAndDraw(this.canvas);
         clearInterval(this.intervalTimer);
+        this.setCanvasInfoAndDraw(this.canvas);
     }
 
     public loseLifeResetGameField(): void {
-        this.gameInstance.active = false;
+        this.gameInstance.isBallInMotion = false;
         this.numberOfLives -= 1;
         this.setCanvasInfoAndDraw(this.canvas);
     }
@@ -58,7 +59,7 @@ export class BlockBreakerService extends AbstractGameService {
         this.context.clearRect(0, 0, this.canvas.nativeElement.width, this.canvas.nativeElement.height);
         this.paddle.location.x = this.clamp(new TwoDLocation(this.mouseLocation.x - this.paddle.width,
             this.mouseLocation.y - this.canvas.nativeElement.offsetTop)).x;
-        if (this.gameInstance.active) {
+        if (this.gameInstance.isBallInMotion) {
             this.handleBallVelocity();
             this.ball.location.y += this.ball.velocity.y;
             this.ball.location.x += this.ball.velocity.x;
@@ -88,13 +89,12 @@ export class BlockBreakerService extends AbstractGameService {
         this.ball = new GameComponent(this.canvas.nativeElement.getContext("2d"), 10, 10, null, "blue", null,
             new TwoDLocation(this.canvas.nativeElement.width/2, this.canvas.nativeElement.height-21), "arc", this.velocity);
         this.context.clearRect(0, 0, this.canvas.nativeElement.width, this.canvas.nativeElement.height);
-        if (this.numberOfLives < 0 || this.numberOfLives === 3){
+        if ( !this.gameInstance.active ){
             this.createBricksArray();
             this.paddle.draw();
             this.ball.draw();
             this.drawBricks();
         } else {
-
             this.update();
         }
     }
@@ -160,6 +160,7 @@ export class BlockBreakerService extends AbstractGameService {
         // }
     }
 
+    // http://blog.sklambert.com/html5-canvas-game-2d-collision-detection/
     // public detectElementCollision(object1: GameComponent, object2: GameComponent): boolean {
     //     if (object1.location.x < object2.location.x + object2.width  && object1.location.x + object1.width  > object2.location.x &&
     //         object1.location.y < object2.location.y + object2.height && object1.location.y + object1.height > object2.location.y) {

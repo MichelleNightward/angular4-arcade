@@ -13,21 +13,20 @@ In the future I may add a simplified RPG using one of the many game development 
 Javascript.
 
 
-##To Launch App:
+#To Launch App:
 - Clone repo to local machine
 - In repo's directory in terminal do ```npm run start```
 
-##Known Bugs:
+#Known Bugs:
 - In Block Breaker ball gets stuck in paddle and sometimes in walls.
 - In Block Breaker, after gameover ball is rendered twice but offset a little bit.
-- Play/stop button gets wonky
+- Play/stop button doesn't toggle icon in Snake module
 
-##TODO:
+#TODO:
 - Add styling and images (including getting LESS in place).
 - Get automated testing in place.
 - Get linter working
 - Get logging for high score initials in place for leader board.
-- Address Block Breaker bugs.
-- Find a better way of juggling gameInstance.active when a game employs the use of lives.
+- Address bugs.
 - Align Snake game field in the center of the page.
 - Find solution to arrow keys causing page to scroll while playing Snake.
