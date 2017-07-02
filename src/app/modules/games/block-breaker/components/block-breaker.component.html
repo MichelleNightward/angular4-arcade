@@ -6,6 +6,9 @@
     <span class="lives">
         Lives: {{gameLives()}}
     </span>
+    <span class="instructions">
+        (Use mouse, click to shoot ball)
+    </span>
     <button (click)="isGameActive() ? gameOver() : startGame()">
         <i class="fa-play" [attr.class]="isGameActive() ? 'fa fa-stop' : 'fa fa-play'"></i>
     </button>

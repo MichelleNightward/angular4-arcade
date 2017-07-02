@@ -31,6 +31,9 @@
     <span class="score">
         Score: {{gameInstance.score}}
     </span>
+    <span class="instructions">
+        (Use arrow keys)
+    </span>
     <button (click)="gameInstance.active ? gameOver() : startGame()">
         <i class="fa-play" [attr.class]="gameInstance.active ? 'fa fa-stop' : 'fa fa-play'"></i>
     </button>
