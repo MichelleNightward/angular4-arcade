@@ -25,12 +25,10 @@ export class BlockBreakerComponent extends AbstractGameComponent implements OnIn
     }
 
     public startGame() {
-        console.log("start");
         this.gameService.startGame();
     }
 
     public gameOver() {
-        console.log("stop");
         this.gameService.gameOver();
     }
 

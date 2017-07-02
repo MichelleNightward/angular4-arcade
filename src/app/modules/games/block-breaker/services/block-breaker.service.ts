@@ -41,11 +41,10 @@ export class BlockBreakerService extends AbstractGameService {
     }
 
     public gameOver(): void {
-        console.log("game over");
         this.gameInstance.active = false;
         this.gameInstance.isBallInMotion = false;
         this.gameInstance.score = 0;
-        // this.numberOfLives = 3;
+        this.numberOfLives = 3;
         clearInterval(this.intervalTimer);
         this.setCanvasInfoAndDraw(this.canvas);
     }
@@ -161,6 +160,7 @@ export class BlockBreakerService extends AbstractGameService {
         // }
     }
 
+    // http://blog.sklambert.com/html5-canvas-game-2d-collision-detection/
     // public detectElementCollision(object1: GameComponent, object2: GameComponent): boolean {
     //     if (object1.location.x < object2.location.x + object2.width  && object1.location.x + object1.width  > object2.location.x &&
     //         object1.location.y < object2.location.y + object2.height && object1.location.y + object1.height > object2.location.y) {
