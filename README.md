@@ -18,7 +18,7 @@ Javascript.
 - In repo's directory in terminal do ```npm run start```
 
 ## Known Bugs:
-- In Block Breaker ball gets stuck in paddle and sometimes in walls.
+- In Block Breaker ball sometimes gets stuck in paddle and in walls.
 - In Block Breaker, after gameover ball is rendered twice but offset a little bit.
 - Play/stop button doesn't toggle icon in Snake module
 
