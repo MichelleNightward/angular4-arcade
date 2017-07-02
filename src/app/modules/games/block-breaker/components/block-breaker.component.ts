@@ -36,8 +36,6 @@ export class BlockBreakerComponent extends AbstractGameComponent implements OnIn
 
     public isGameActive(): boolean {
         return this.gameService.gameInstance.active;
-        // TODO: get a better way of juggling gameInstance.active while keeping in mind # of lives left
-        // return this.gameService.gameInstance.active || this.gameLives() !== 3;
     }
 
     public gameScore(): number {
